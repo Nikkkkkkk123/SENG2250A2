@@ -77,8 +77,7 @@ public class Client {
             out.close();
             s.close();
         } catch (Exception e) {
-            // TODO: Add some better error handling
-            e.printStackTrace();
+            System.err.println("An error occurred while communicating with the client: " + e.getMessage());
         }        
     }
 }

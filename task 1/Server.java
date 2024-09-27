@@ -61,8 +61,7 @@ public class Server {
             // Send a message to the client
             out.write("I'll do the best I can. Let's get moving.".getBytes());
         } catch (Exception e) {
-            // TODO: Add some better error handling
-            e.printStackTrace();
+            System.err.println("An error occurred while communicating with the client: " + e.getMessage());
         }
     }
 }
