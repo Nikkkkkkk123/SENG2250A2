@@ -3,7 +3,7 @@ import java.io.DataOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.Socket;
 import java.net.ServerSocket;
-
+import javax.net.ssl.*;
 /**
  * The server, it will look for a client, receive a message and send one back.
  * It is current not secure, so to fix that, set up the SSL certificates and
@@ -33,15 +33,19 @@ import java.net.ServerSocket;
  */
 public class Server {
     public static void main(String[] args) {
+        System.setProperty("javax.net.ssl.keyStore", "keystore");
+        System.setProperty("javax.net.ssl.keyStorePassword", "password");
         int port = 2250;  // Arbitrary non-privileged port
         System.out.format("Listening for a client on port %d\n", port);
-
+        SSLServerSocketFactory factory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
         try (
-            ServerSocket serverSocket = new ServerSocket(port);
-            Socket socket = serverSocket.accept();
+            SSLServerSocket serverSocket = (SSLServerSocket) factory.createServerSocket(port);
+            SSLSocket socket = (SSLSocket) serverSocket.accept();
             DataInputStream in = new DataInputStream(socket.getInputStream());
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
         ) {
+            socket.setTcpNoDelay(true);
+            socket.startHandshake();
             System.out.format(
                 "Connected by %s:%d\n",
                 socket.getInetAddress().toString(),

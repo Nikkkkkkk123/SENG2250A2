@@ -35,6 +35,8 @@ import javax.net.ssl.*;
  */
 public class Client {
     public static void main(String[] args) {
+        System.setProperty("javax.net.ssl.keyStore", "keystore");
+        System.setProperty("javax.net.ssl.keyStorePassword", "password");
         String hostname = "localhost";  // Server hostname or IP
         int port = 2250; // The same port as used by the server
         System.out.format("Connecting to the server at %s:%d\n", hostname, port);
@@ -51,13 +53,19 @@ public class Client {
         };
 
         try {
-            Socket s = new Socket(hostname, port);
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            SSLSocketFactory factory = (SSLSocketFactory) sc.getSocketFactory();
+            SSLSocket s = (SSLSocket) factory.createSocket(hostname, port);
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             DataInputStream in = new DataInputStream(s.getInputStream());
+            s.setTcpNoDelay(true);
+            s.startHandshake();
 
             // Send a message to the server
             out.write("Be careful. There's no telling what tricks they have planned.".getBytes());
-        
+            
+            
             // Receive a message from the server
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             byte data[] = new byte[1024];
