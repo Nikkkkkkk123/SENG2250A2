@@ -46,18 +46,20 @@ public class Client {
         String hostname = "localhost";
         int port = 22500;
 
-        Scanner scanner = new Scanner(System.in);
-        boolean end = false;
+        Scanner scanner = new Scanner(System.in); // Scanner to get user input
+        boolean end = false; // Flag to end the program
         System.out.println("Welcome to the SENG2250 password manager client, you have the following options:");
         while (!end) {
             // TODO: Add a user interface and correct cryptographic handling of passwords
-            int want = 0;
+            int want = 0; // Flag to determine what the request the user has made is
             System.out.println("- store <website> <password>");
             System.out.println("- get <website>");
             System.out.println("- end");
-
             System.out.print(">>> ");
-            String input = scanner.nextLine();
+
+            String input = scanner.nextLine(); // Get the user input
+
+            // Determine what the user wants to do
             if (input.contains("store")) {
                 want = 2;
             }
@@ -68,56 +70,57 @@ public class Client {
                 want = 1;
             }
 
+            // Perform the action the user wants
             switch (want) {
                 case 1 :
-                    sendReceive(hostname, port, "end".getBytes());
-                    System.out.println("bye.");
-                    end = true;
+                    sendReceive(hostname, port, "end".getBytes()); // Send the end message to the server
+                    System.out.println("bye."); // Print a goodbye message
+                    end = true; // Set the end flag to true to end the program
                     break;
 
                 case 2 : 
-                    if (input.split(" ", 3).length != 3) {
+                    if (input.split(" ", 3).length != 3) { // Checks if the input is in the correct format, if it is not, it prints an error message
                         System.out.println("To store a password, please use the format: store <website> <password>");
                         break;
                     }
-                    String parts [] = new String (input).split(" ", 3);
-                    String website = parts[1];
-                    BigInteger encryptedTwo = rsa.encrypt(parts[1]);
-                    BigInteger encryptedOne = rsa.encrypt(parts[2]);
-                    byte[] newMessage = (parts[0] + " " + encryptedTwo.toString() + " " + encryptedOne.toString()).getBytes();
+                    String parts [] = new String (input).split(" ", 3); // Splits the input into parts
+                    String website = parts[1]; // Stores the website
+                    BigInteger encryptedWebsite = rsa.encrypt(parts[1]); // Encrypts and stores the website
+                    BigInteger encryptedPassword = rsa.encrypt(parts[2]); // Encrypts and stores the password
+                    byte[] newMessage = (parts[0] + " " + encryptedWebsite.toString() + " " + encryptedPassword.toString()).getBytes(); // Creates a new message,  converts it to bytes
                     try {
-                        String response = new String (sendReceive(hostname, port, newMessage));
-                        System.out.println(response);
+                        String response = new String (sendReceive(hostname, port, newMessage)); // Sends the message to the server and stores the response
+                        System.out.println(response); // Prints the response
                     } 
-                    catch (Exception e) {
-                        System.out.println("Password already exists for " + website);
+                    catch (Exception e) { // Catches any exceptions
+                        System.out.println("Password already exists for " + website); // Prints an error message
                     }
                     break;
 
                 case 3 :
-                    if (input.split(" ").length != 2) {
+                    if (input.split(" ").length != 2) { // Checks if the input is in the correct format, if it is not, it prints an error message
                         System.out.println("To get a password, please use the format: get <website>");
                         break;
                     }
                     String getParts[] = new String (input).split(" ");
-                    BigInteger encryptedGetWebsite = rsa.encrypt(getParts[1]);
-                    String decryptedWebsite = getParts[1];
-                    byte[] getNewMessage = (getParts[0] + " " + encryptedGetWebsite.toString()).getBytes();
+                    BigInteger encryptedGetWebsite = rsa.encrypt(getParts[1]); // Encrypts the website and stores it
+                    String decryptedWebsite = getParts[1]; // Stores the plaintext website name
+                    byte[] getNewMessage = (getParts[0] + " " + encryptedGetWebsite.toString()).getBytes(); // Creates a new message, converts it to bytes
                     try {
-                        String getResponse = new String (sendReceive(hostname, port, getNewMessage));
-                        BigInteger encryptedPassword = new BigInteger(getResponse);
-                        String decryptedPassword = rsa.decrypt(encryptedPassword);
-                        System.out.println("Your password for " + decryptedWebsite + " is " + decryptedPassword);
+                        String getResponse = new String (sendReceive(hostname, port, getNewMessage)); // Sends the message to the server and stores the response
+                        BigInteger getRequestEncryptedPassword = new BigInteger(getResponse); // Gets the encrypted password
+                        String decryptedPassword = rsa.decrypt(getRequestEncryptedPassword); // Decrypts the password
+                        System.out.println("Your password for " + decryptedWebsite + " is " + decryptedPassword); // Notifies the user of the password for the website
                     } 
                     catch (Exception e) {
-                        System.out.println("Password not found for " + decryptedWebsite);
+                        System.out.println("Password not found for " + decryptedWebsite); 
                     }
                     break;
                 default :
-                    System.out.println("Please enter a valid option: ");
+                    System.out.println("Please enter a valid option: "); // Prints an error message if the user input is not valid
                     break;
             }
         }
-        scanner.close();
+        scanner.close(); // Closes the scanner
     }
 }

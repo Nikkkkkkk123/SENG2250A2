@@ -22,38 +22,38 @@ public class Server {
                 return true;
             }
             // TODO: Add handling for the other messages (including handling the passwords correctly)
-            if (message.substring(0, 3).equals("get")) {
-                String[] parts = message.split(" ");
-                BigInteger encryptedTwo = new BigInteger(parts[1]);
-                if (passwords.containsKey(encryptedTwo)) {
-                    out.writeObject((passwords.get(encryptedTwo)+"").getBytes());
+            if (message.substring(0, 3).equals("get")) { // Checks if the message is a get request
+                String[] parts = message.split(" "); // Splits the message into parts
+                BigInteger encryptedTwo = new BigInteger(parts[1]); // Gets the encrypted password
+                if (passwords.containsKey(encryptedTwo)) { // Checks if the password is in the hashmap, if it is, it sends the password back to the client
+                    out.writeObject((passwords.get(encryptedTwo)+"").getBytes()); // Sends the password back to the client
                 } 
                 else {
-                    throw new Exception("Password not found.");
+                    throw new Exception("Password not found."); // If the password is not found, it throws an exception
                 }
             }
-            else if (message.substring(0, 5).equals("store")) {
+            else if (message.substring(0, 5).equals("store")) { // Checks if the message is a store request
                 String[] parts = message.split(" ", 3);
-                BigInteger encryptedOne = new BigInteger(parts[2]);
-                BigInteger encryptedTwo = new BigInteger(parts[1]);
+                BigInteger encryptedOne = new BigInteger(parts[2]); // Gets the encrypted password
+                BigInteger encryptedTwo = new BigInteger(parts[1]); // Gets the encrypted website
 
-                if (!passwords.containsKey(encryptedTwo)) {
-                    passwords.put(encryptedTwo, encryptedOne);
-                    out.writeObject("Password successfully stored.".getBytes());
+                if (!passwords.containsKey(encryptedTwo)) { // Checks if the password is already in the hashmap, if it is not, it stores the password
+                    passwords.put(encryptedTwo, encryptedOne); // Stores the password
+                    out.writeObject("Password successfully stored.".getBytes()); // Sends a message back to the client
                 } 
                 else {
-                    throw new Exception("Password already exists.");
+                    throw new Exception("Password already exists."); // If the password is already in the hashmap, it throws an exception
                 }
             }
 
-            out.flush();
-            return false;
+            out.flush(); // Flushes the output stream
+            return false; // returns false to continue the loop
         } 
         catch (Exception e) {
-            if (e.getMessage().equals("Password already exists.")) {
+            if (e.getMessage().equals("Password already exists.")) { // Checks if the exception is a password already exists exception
                 System.out.println("Password already exists.");
             }
-            else if (e.getMessage().equals("Password not found.")) {
+            else if (e.getMessage().equals("Password not found.")) { // Checks if the exception is a password not found exception
                 System.out.println("Password not found.");
             }
             else {

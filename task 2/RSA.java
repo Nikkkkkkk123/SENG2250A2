@@ -12,11 +12,11 @@ public class RSA {
     private BigInteger d; // Private exponent
 
     public RSA() {
-        getInput();
-        n = findN();
-        phi = getEulersTotient();
-        e = new BigInteger("65537");
-        d = privateExponent();
+        getInput(); // Get the two prime numbers from the file
+        n = findN(); // Find the product of the two prime numbers
+        phi = getEulersTotient(); // Find the Eulers Totient of the two prime numbers
+        e = new BigInteger("65537"); // Public exponent
+        d = privateExponent(); // Private exponent
     }
 
         /* 
@@ -29,20 +29,20 @@ public class RSA {
      * @throws NumberFormatException if the number is not a valid BigInteger
      */
     public void getInput() {
-        File file = new File("primes.txt");
+        File file = new File("primes.txt"); // Sets the file to get the prime numbers from
         try {
-            Scanner scanner = new Scanner(file);
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                if (line.charAt(0) == 'p') {
+            Scanner scanner = new Scanner(file); // Scanner to read the file
+            while (scanner.hasNextLine()) { // While there are still lines in the file
+                String line = scanner.nextLine(); // Get the next line
+                if (line.charAt(0) == 'p') { // If the line is the first prime number then set p to the number
                     p = new BigInteger(line.substring(2));
-                } else if (line.charAt(0) == 'q') {
+                } else if (line.charAt(0) == 'q') { // If the line is the second prime number then set q to the number
                     q = new BigInteger(line.substring(2));
                 }
             }
             scanner.close();
         } catch (IOException e) {
-            System.out.println("File not found");
+            System.out.println("File not found"); // Throw an error if the file is not found
         }
     }
 
@@ -53,10 +53,11 @@ public class RSA {
      * @return BigInteger the encrypted text
      */
     public BigInteger encrypt (String plainText) {
-        byte[] messageBytes = plainText.getBytes();
-        BigInteger messageInt = new BigInteger(1, messageBytes);
-        BigInteger ciphertext = fastModExp(messageInt, e);
-        return ciphertext;
+        byte[] messageBytes = plainText.getBytes(); // Convert the message to bytes
+        BigInteger messageInt = new BigInteger(1, messageBytes); // Convert the bytes to a BigInteger (1 is positive)
+        System.out.println(messageInt); // Print the message as a BigInteger
+        BigInteger ciphertext = fastModExp(messageInt, e); // Encrypt the message using the public key
+        return ciphertext; // Return the encrypted message
     }
 
     /*
@@ -66,9 +67,9 @@ public class RSA {
      * @return String the decrypted message
      */
     public String decrypt (BigInteger encryptedMessage) {
-        BigInteger decryptedInt = fastModExp(encryptedMessage, d);
-        byte[] decryptedBytes = decryptedInt.toByteArray();
-        return new String(decryptedBytes);
+        BigInteger decryptedInt = fastModExp(encryptedMessage, d); // Decrypt the message using the private key
+        byte[] decryptedBytes = decryptedInt.toByteArray(); // Convert the decrypted message to bytes
+        return new String(decryptedBytes); // Return the decrypted message as a string
     }
 
       /*
@@ -80,16 +81,16 @@ public class RSA {
      * 
      */
     private BigInteger fastModExp(BigInteger base, BigInteger exponential) {
-        BigInteger result = BigInteger.ONE;
+        BigInteger result = BigInteger.ONE; // Set the result to 1
         base = base.mod(n);
         while (exponential.compareTo(BigInteger.ZERO) > 0) {
-            if (exponential.mod(BigInteger.TWO).equals(BigInteger.ONE)) {
+            if (exponential.mod(BigInteger.TWO).equals(BigInteger.ONE)) { // Checks if the exponent is odd, if it is then multiply the result by the base
                 result = result.multiply(base).mod(n);
             }
-            exponential = exponential.shiftRight(1); 
-            base = base.multiply(base).mod(n);
+            exponential = exponential.shiftRight(1);  // Divide the exponent by 2 and take the floor value. shiftRight(1) is equivalent to dividing by 2. Computes floor(exponential/2)
+            base = base.multiply(base).mod(n); // Square the base and take the modulus
         }
-        return result;
+        return result; // Return the result
     }
 
     /*
