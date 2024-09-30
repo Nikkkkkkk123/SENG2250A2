@@ -1,8 +1,6 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.net.Socket;
-import java.net.ServerSocket;
 import javax.net.ssl.*;
 /**
  * The server, it will look for a client, receive a message and send one back.

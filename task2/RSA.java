@@ -2,6 +2,7 @@ import java.math.BigInteger;
 import java.util.Scanner;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 public class RSA {
     private BigInteger p; // Prime number 1
@@ -15,7 +16,7 @@ public class RSA {
         getInput(); // Get the two prime numbers from the file
         n = findN(); // Find the product of the two prime numbers
         phi = getEulersTotient(); // Find the Eulers Totient of the two prime numbers
-        e = new BigInteger("65537"); // Public exponent
+        e = publicExponent(); // Public exponent
         d = privateExponent(); // Private exponent
     }
 
@@ -55,7 +56,6 @@ public class RSA {
     public BigInteger encrypt (String plainText) {
         byte[] messageBytes = plainText.getBytes(); // Convert the message to bytes
         BigInteger messageInt = new BigInteger(1, messageBytes); // Convert the bytes to a BigInteger (1 is positive)
-        System.out.println(messageInt); // Print the message as a BigInteger
         BigInteger ciphertext = fastModExp(messageInt, e); // Encrypt the message using the public key
         return ciphertext; // Return the encrypted message
     }
@@ -93,6 +93,41 @@ public class RSA {
         return result; // Return the result
     }
 
+        /*
+     * Description: Find a coprime of the Eulers Totient
+     * 
+     * @param phi the Eulers Totient
+     * @return BigInteger a coprime of the Eulers Totient
+     */
+    private BigInteger findCoprime (BigInteger phi) {
+        Random randNo = new Random();
+        BigInteger temp = new BigInteger(1024, randNo);
+
+        while (temp.compareTo(phi) < 0) {
+            if (gcd(temp, phi).equals(BigInteger.ONE)) {
+                return temp;
+            }
+            temp = temp.add(BigInteger.ONE);
+        }
+        return BigInteger.ZERO;
+    }
+
+    /*
+     * Description: Find the greatest common divisor of two numbers
+     * 
+     * @param a the first number
+     * @param b the second number
+     * @return BigInteger the greatest common divisor
+     */
+    private BigInteger gcd(BigInteger a, BigInteger b) {
+        while (b != BigInteger.ZERO) {
+            BigInteger temp = b;
+            b = a.mod(b);
+            a = temp;
+        }
+        return a;
+    }
+
     /*
      * Description: Find the product of the two prime numbers
      * 
@@ -121,5 +156,15 @@ public class RSA {
      */
     private BigInteger privateExponent() {
         return e.modInverse(phi);
+    }
+
+    /*
+     * Description: Find the public exponent
+     * 
+     * @param none
+     * @return BigInteger the public exponent
+     */
+    private BigInteger publicExponent() {
+        return findCoprime(phi);
     }
 }

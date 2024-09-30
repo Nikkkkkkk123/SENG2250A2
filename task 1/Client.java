@@ -1,7 +1,6 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.net.Socket;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.*;
 
