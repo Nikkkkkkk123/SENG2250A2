@@ -27,36 +27,38 @@ public class Server {
                 BigInteger encryptedTwo = new BigInteger(parts[1]);
                 if (passwords.containsKey(encryptedTwo)) {
                     out.writeObject((passwords.get(encryptedTwo)+"").getBytes());
-                    out.flush();
                 } 
                 else {
-                    out.writeObject("Password not found.".getBytes());
-                    out.flush();
+                    throw new Exception("Password not found.");
                 }
-                return false;
             }
             else if (message.substring(0, 5).equals("store")) {
                 String[] parts = message.split(" ", 3);
                 BigInteger encryptedOne = new BigInteger(parts[2]);
                 BigInteger encryptedTwo = new BigInteger(parts[1]);
 
-                if (passwords.containsKey(encryptedTwo)) {
-                    out.writeObject(("Password already exists for ").getBytes());
-                    out.flush();
-                } 
-                else {
+                if (!passwords.containsKey(encryptedTwo)) {
                     passwords.put(encryptedTwo, encryptedOne);
                     out.writeObject("Password successfully stored.".getBytes());
-                    out.flush();
+                } 
+                else {
+                    throw new Exception("Password already exists.");
                 }
             }
 
+            out.flush();
             return false;
         } 
         catch (Exception e) {
-            // TODO: Add some better error handling
-
-            e.printStackTrace();
+            if (e.getMessage().equals("Password already exists.")) {
+                System.out.println("Password already exists.");
+            }
+            else if (e.getMessage().equals("Password not found.")) {
+                System.out.println("Password not found.");
+            }
+            else {
+                e.printStackTrace();
+            }
         }
         return false;
     }

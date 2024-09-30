@@ -25,56 +25,18 @@ public class Client {
             Socket s = new Socket(hostname, port);
         ) {
             ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-            byte[] newMessage = null;
-            String decryptedWebsite = null;
-            boolean isEnding = false;
-            if (new String (message).contains("end")) {
-                newMessage = message;
-                isEnding = true;
-            }
-            else if (!isEnding) {
-                if (new String (message).substring(0, 3).equals("get")) {
-                    String parts[] = new String (message).split(" ");
-                    BigInteger encryptedTwo = rsa.encrypt(parts[1]);
-                    decryptedWebsite = parts[1];
-                    newMessage = (parts[0] + " " + encryptedTwo.toString()).getBytes();
-                }
-                else if (new String (message).substring(0, 5).equals("store")) {
-                    String parts [] = new String (message).split(" ", 3);
-                    decryptedWebsite = parts[1];
-                    BigInteger encryptedTwo = rsa.encrypt(parts[1]);
-                    BigInteger encryptedOne = rsa.encrypt(parts[2]);
-                    newMessage = (parts[0] + " " + encryptedTwo.toString() + " " + encryptedOne.toString()).getBytes();
-                }
-            }
-
-            out.writeObject(newMessage);  // Send the message to the server
+            out.writeObject(message);  // Send the message to the server
             out.flush();
             ObjectInputStream in = new ObjectInputStream(s.getInputStream());
             byte buffer[] = (byte[]) in.readObject(); // Receive a message from the server
-            String response = new String(buffer);
-            if (!isEnding) {
-                if (new String (message).substring(0, 5).equals("store")) {
-                    if (response.contains("Password already exists for")) {
-                        String[] parts = response.split("Password already exists for ");
-                        return ("Password already exists for " + decryptedWebsite).getBytes();
-                    }
-                }
-                else if (new String (message).substring(0, 3).equals("get")) {
-                    if (response.contains("Password not found.")) {
-                        return "Password not found.".getBytes();
-                    }
-                    else {
-                        String[] parts = response.split(" ");
-                        String decryptedOne = rsa.decrypt(new BigInteger(parts[0]));
-                        return ("Your password for "+decryptedWebsite+" is " + decryptedOne).getBytes();
-                    }
-                }
-            }
             return buffer;
         } catch (Exception e) {
-            System.err.println("An error occurred while communicating with the server: " + e.getMessage());
-            e.printStackTrace();
+            if (e instanceof java.io.EOFException) {
+                return null;
+            } 
+            else {
+                e.printStackTrace();
+            }
         }
         return null;
     }
@@ -115,23 +77,47 @@ public class Client {
 
                 case 2 : 
                     if (input.split(" ", 3).length != 3) {
-                        System.out.println("Invalid input");
+                        System.out.println("To store a password, please use the format: store <website> <password>");
                         break;
                     }
-                    System.out.println(new String(sendReceive(hostname, port, input.getBytes())));
+                    String parts [] = new String (input).split(" ", 3);
+                    String website = parts[1];
+                    BigInteger encryptedTwo = rsa.encrypt(parts[1]);
+                    BigInteger encryptedOne = rsa.encrypt(parts[2]);
+                    byte[] newMessage = (parts[0] + " " + encryptedTwo.toString() + " " + encryptedOne.toString()).getBytes();
+                    try {
+                        String response = new String (sendReceive(hostname, port, newMessage));
+                        System.out.println(response);
+                    } 
+                    catch (Exception e) {
+                        System.out.println("Password already exists for " + website);
+                    }
                     break;
 
                 case 3 :
                     if (input.split(" ").length != 2) {
-                        System.out.println("No website specified");
+                        System.out.println("To get a password, please use the format: get <website>");
                         break;
                     }
-                    System.out.println(new String (sendReceive(hostname, port, input.getBytes())));
+                    String getParts[] = new String (input).split(" ");
+                    BigInteger encryptedGetWebsite = rsa.encrypt(getParts[1]);
+                    String decryptedWebsite = getParts[1];
+                    byte[] getNewMessage = (getParts[0] + " " + encryptedGetWebsite.toString()).getBytes();
+                    try {
+                        String getResponse = new String (sendReceive(hostname, port, getNewMessage));
+                        BigInteger encryptedPassword = new BigInteger(getResponse);
+                        String decryptedPassword = rsa.decrypt(encryptedPassword);
+                        System.out.println("Your password for " + decryptedWebsite + " is " + decryptedPassword);
+                    } 
+                    catch (Exception e) {
+                        System.out.println("Password not found for " + decryptedWebsite);
+                    }
                     break;
                 default :
                     System.out.println("Please enter a valid option: ");
                     break;
             }
         }
+        scanner.close();
     }
 }

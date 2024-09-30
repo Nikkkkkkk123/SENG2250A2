@@ -19,32 +19,7 @@ public class RSA {
         d = privateExponent();
     }
 
-    /*
-     * Description: Encrypt the plain text using the public key
-     * 
-     * @param plainText the text to be encrypted
-     * @return BigInteger the encrypted text
-     */
-    public BigInteger encrypt (String plainText) {
-        byte[] messageBytes = plainText.getBytes();
-        BigInteger messageInt = new BigInteger(1, messageBytes);
-        BigInteger ciphertext = fastModExp(messageInt, e, n);
-        return ciphertext;
-    }
-
-    /*
-     * Description: Decrypt the encrypted message using the private key
-     * 
-     * @param encryptedMessage the message to be decrypted
-     * @return String the decrypted message
-     */
-    public String decrypt (BigInteger encryptedMessage) {
-        BigInteger decryptedInt = fastModExp(encryptedMessage, d, n);
-        byte[] decryptedBytes = decryptedInt.toByteArray();
-        return new String(decryptedBytes);
-    }
-
-    /* 
+        /* 
      * Description: Get the two prime numbers from the file
      * 
      * @param none
@@ -69,6 +44,52 @@ public class RSA {
         } catch (IOException e) {
             System.out.println("File not found");
         }
+    }
+
+    /*
+     * Description: Encrypt the plain text using the public key
+     * 
+     * @param plainText the text to be encrypted
+     * @return BigInteger the encrypted text
+     */
+    public BigInteger encrypt (String plainText) {
+        byte[] messageBytes = plainText.getBytes();
+        BigInteger messageInt = new BigInteger(1, messageBytes);
+        BigInteger ciphertext = fastModExp(messageInt, e);
+        return ciphertext;
+    }
+
+    /*
+     * Description: Decrypt the encrypted message using the private key
+     * 
+     * @param encryptedMessage the message to be decrypted
+     * @return String the decrypted message
+     */
+    public String decrypt (BigInteger encryptedMessage) {
+        BigInteger decryptedInt = fastModExp(encryptedMessage, d);
+        byte[] decryptedBytes = decryptedInt.toByteArray();
+        return new String(decryptedBytes);
+    }
+
+      /*
+     * Description: Perform fast modular exponentiation
+     * 
+     * @param base the base number
+     * @param exponential the exponent
+     * @return BigInteger the result of the modular exponentiation
+     * 
+     */
+    private BigInteger fastModExp(BigInteger base, BigInteger exponential) {
+        BigInteger result = BigInteger.ONE;
+        base = base.mod(n);
+        while (exponential.compareTo(BigInteger.ZERO) > 0) {
+            if (exponential.mod(BigInteger.TWO).equals(BigInteger.ONE)) {
+                result = result.multiply(base).mod(n);
+            }
+            exponential = exponential.shiftRight(1); 
+            base = base.multiply(base).mod(n);
+        }
+        return result;
     }
 
     /*
@@ -99,29 +120,5 @@ public class RSA {
      */
     private BigInteger privateExponent() {
         return e.modInverse(phi);
-    }
-
-    /*
-     * Description: Perform fast modular exponentiation
-     * 
-     * @param base the base number
-     * @param exp the exponent
-     * @param mod the modulus
-     * @return BigInteger the result of the modular exponentiation
-     * 
-     * @throws IllegalArgumentException if the exponent is negative
-     * @throws IllegalArgumentException if the modulus is zero
-     */
-    private static BigInteger fastModExp(BigInteger base, BigInteger exp, BigInteger mod) {
-        BigInteger result = BigInteger.ONE;
-        base = base.mod(mod);
-        while (exp.compareTo(BigInteger.ZERO) > 0) {
-            if (exp.mod(BigInteger.TWO).equals(BigInteger.ONE)) {
-                result = result.multiply(base).mod(mod);
-            }
-            exp = exp.shiftRight(1); // exp = exp / 2
-            base = base.multiply(base).mod(mod);
-        }
-        return result;
     }
 }
