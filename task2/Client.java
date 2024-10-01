@@ -31,8 +31,8 @@ public class Client {
             byte buffer[] = (byte[]) in.readObject(); // Receive a message from the server
             return buffer;
         } catch (Exception e) {
-            if (e instanceof java.io.EOFException) {
-                return null;
+            if (e instanceof java.io.IOException) {
+                return ("You have not connected to the server.").getBytes();
             } 
             else {
                 e.printStackTrace();

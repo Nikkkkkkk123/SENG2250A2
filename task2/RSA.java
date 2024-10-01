@@ -1,3 +1,13 @@
+/*
+ * File Name: RSA.java
+ * Author: Nikkita Nichols (c3362623)
+ * Course: SENG2250
+ * Date Created: 2024/09/30
+ * Last Updated: 2024/10/01
+ * Description: This class is used to encrypt and decrypt messages using the RSA algorithm. It reads two prime numbers from a file, calculates the public and private keys, 
+ * and then encrypts and decrypts messages using these keys.
+ */
+
 import java.math.BigInteger;
 import java.util.Scanner;
 import java.io.File;

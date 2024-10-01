@@ -1,38 +1,23 @@
-# Task 2: A basic password manager
+# Task 2: A Single Client Password Manager
 
-For this task, you will develop a basic password manager for a single client. This password
-manager will be secured with your own implementation of the RSA algorithm. You will have find
-the correct way to use RSA, i.e. which parts of the messages to encrypt/decrypt, so that the
-password management server and potential interceptors are never able to see the cleartext passwords.
-
-The following sections provide further details for the expected pieces of the program.
-
+## Description
+This program is a basic password manager for a single client. The passwords are secured with an 
+implementation of the RSA algorithm. The messages sent between the client has the websites and 
+passwords encrypted using this implementation of RSA ensuring that the server and interceptors.
+The Client is able to store a website and its given password, get the password for a stored 
+website and end the communication between the Client and the Server.
 
 ## RSA
 
-You will read p and q from the primes.txt file to compute n, phi(n), e, and d. To find d, you may
-use the standard library modular inverse function, i.e. BigInteger.modInverse(). For all other places where
-modular exponentiation is required, you will use your own implementation of the fast modular
-exponentiation algorithm.
+This will read the p and q from the given file "primes.txt" to compute n, phi(n), e, and d. Only
+when computing 'd' does it use the modular inversefunction (BigInteger.modInverse()). In all other
+places that requre modular exponentiation uses my own implementation of fast modular exponential 
+algorithm.
 
-You will want to use the BigInteger (https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/math/BigInteger.html) class for this program.
+## Client.java
 
-
-## Password manager client
-
-You will extend the Client.java file to have a user interface and to correctly handle passwords. The
-interface should allow the user to store, retrieve, or end the program in any order at any point.
-The interface should gracefully handle erroneous inputs and received messages.
-
-The client has three possible network messages that it will send to the server:
-- store website password
-- get website
-- end
-
-Where store tells the server to store the password for the website, get tells the server to send
-back the password for the specified website, and end tells the server to end the program.
-
-The following an example output and input for the client:
+The client file is where the user inputs the commands they wish to store or retrive. 
+The following is an example output for the client file:
 
 ```
 Welcome to the SENG2250 password manager client, you have the following options:
@@ -60,10 +45,10 @@ You have the following options:
 bye.
 ```
 
+This file will check for potential input errors and attempt to notify the user to 
+potential ways that they can alter their previous input to obtain the desired result.
 
 ## Password manager server
-
-You will extend the Server.java file to handle the store and get commands received from the client.
 
 When the server receives a store command, it will store the specified password such that it is
 mapped to the specified website. Afterwards it will send back the message
@@ -72,12 +57,22 @@ mapped to the specified website. Afterwards it will send back the message
 When the server receives a get commend, it will send back only the password that is mapped to the
 specified website.
 
-The end command is already handled in the code you are extending, but its specifications are that
-on receiving an end command it will send back "end okay" and quit the program.
+## Requirements
+This program was created using java 17 and will require you to have java 17 or later installed.
 
+## Running the program
 
-## Running the programs
+To run the program you must complete the following steps:
+ - Step 1: Compile the program using:"Javac *.java" in the terminal.
+ - Step 2: You must have 2 terminals open and in one use the command "java Server".
+ - Step 3: Once the server is running it will output "Listening for a client on port "22500" which means
+           on the second terminal you can now input the command "java Client".
 
-The programs should be compiled only with javac, i.e. with the `javac *.java` command. The server
-and client are started in separate command prompts/terminals. The server starts first and looks for
-clients, the client, when started, will connect to the server if it is online.
+After the completion of these steps the client terminal will output an interface meaning that you have successfully
+started the program and can input the following inputs into the client terminal:
+inputs: 
+
+- store <website> <password>
+- get <website>
+- end
+
