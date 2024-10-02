@@ -60,13 +60,14 @@ public class Client {
             String input = scanner.nextLine(); // Get the user input
 
             // Determine what the user wants to do
-            if (input.contains("store")) {
+            String[] tempInput = input.split(" ");
+            if (tempInput[0].equalsIgnoreCase("store")) {
                 want = 2;
             }
-            else if (input.contains("get")) {
+            else if (tempInput[0].equalsIgnoreCase("get")) {
                 want = 3;
             }
-            else if (input.contains("end")) {
+            else if (tempInput[0].equalsIgnoreCase("end")) {
                 want = 1;
             }
 
@@ -85,11 +86,14 @@ public class Client {
                     }
                     String parts [] = new String (input).split(" ", 3); // Splits the input into parts
                     String website = parts[1]; // Stores the website
-                    BigInteger encryptedWebsite = rsa.encrypt(parts[1]); // Encrypts and stores the website
+                    BigInteger encryptedWebsite = rsa.encrypt(parts[1].toLowerCase()); // Encrypts and stores the website
                     BigInteger encryptedPassword = rsa.encrypt(parts[2]); // Encrypts and stores the password
-                    byte[] newMessage = (parts[0] + " " + encryptedWebsite.toString() + " " + encryptedPassword.toString()).getBytes(); // Creates a new message,  converts it to bytes
+                    byte[] newMessage = (parts[0].toLowerCase() + " " + encryptedWebsite.toString() + " " + encryptedPassword.toString()).getBytes(); // Creates a new message,  converts it to bytes
                     try {
                         String response = new String (sendReceive(hostname, port, newMessage)); // Sends the message to the server and stores the response
+                        if (response.equals("Password already exists.")) { // Checks if the password was successfully stored
+                            throw new Exception(); // Throws an exception if the password was not successfully stored
+                        }
                         System.out.println(response); // Prints the response
                     } 
                     catch (Exception e) { // Catches any exceptions
@@ -103,9 +107,9 @@ public class Client {
                         break;
                     }
                     String getParts[] = new String (input).split(" ");
-                    BigInteger encryptedGetWebsite = rsa.encrypt(getParts[1]); // Encrypts the website and stores it
+                    BigInteger encryptedGetWebsite = rsa.encrypt(getParts[1].toLowerCase()); // Encrypts the website and stores it
                     String decryptedWebsite = getParts[1]; // Stores the plaintext website name
-                    byte[] getNewMessage = (getParts[0] + " " + encryptedGetWebsite.toString()).getBytes(); // Creates a new message, converts it to bytes
+                    byte[] getNewMessage = (getParts[0].toLowerCase() + " " + encryptedGetWebsite.toString()).getBytes(); // Creates a new message, converts it to bytes
                     try {
                         String getResponse = new String (sendReceive(hostname, port, getNewMessage)); // Sends the message to the server and stores the response
                         BigInteger getRequestEncryptedPassword = new BigInteger(getResponse); // Gets the encrypted password

@@ -29,7 +29,7 @@ public class Server {
                     out.writeObject((passwords.get(encryptedTwo)+"").getBytes()); // Sends the password back to the client
                 } 
                 else {
-                    throw new Exception("Password not found."); // If the password is not found, it throws an exception
+                    out.writeObject("Password not found.".getBytes()); // If the password is not in the hashmap, it sends a message back to the client
                 }
             }
             else if (message.substring(0, 5).equals("store")) { // Checks if the message is a store request
@@ -42,7 +42,7 @@ public class Server {
                     out.writeObject("Password successfully stored.".getBytes()); // Sends a message back to the client
                 } 
                 else {
-                    throw new Exception("Password already exists."); // If the password is already in the hashmap, it throws an exception
+                    out.writeObject("Password already exists.".getBytes()); // If the password is already in the hashmap, it sends a message back to the client
                 }
             }
 
@@ -50,15 +50,7 @@ public class Server {
             return false; // returns false to continue the loop
         } 
         catch (Exception e) {
-            if (e.getMessage().equals("Password already exists.")) { // Checks if the exception is a password already exists exception
-                System.out.println("Password already exists.");
-            }
-            else if (e.getMessage().equals("Password not found.")) { // Checks if the exception is a password not found exception
-                System.out.println("Password not found.");
-            }
-            else {
-                e.printStackTrace();
-            }
+            e.printStackTrace(); // Prints the stack trace
         }
         return false;
     }
