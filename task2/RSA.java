@@ -115,6 +115,7 @@ public class RSA {
 
         while (temp.compareTo(phi) < 0) {
             if (gcd(temp, phi).equals(BigInteger.ONE)) {
+                System.out.println(temp);
                 return temp;
             }
             temp = temp.add(BigInteger.ONE);
