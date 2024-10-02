@@ -50,15 +50,7 @@ public class Server {
             return false; // returns false to continue the loop
         } 
         catch (Exception e) {
-            if (e.getMessage().equals("Password already exists.")) { // Checks if the exception is a password already exists exception
-                System.out.println("Password already exists.");
-            }
-            else if (e.getMessage().equals("Password not found.")) { // Checks if the exception is a password not found exception
-                System.out.println("Password not found.");
-            }
-            else {
-                e.printStackTrace();
-            }
+            e.printStackTrace(); // Prints the stack trace
         }
         return false;
     }

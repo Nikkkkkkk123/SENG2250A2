@@ -26,8 +26,8 @@ public class RSA {
         getInput(); // Get the two prime numbers from the file
         n = findN(); // Find the product of the two prime numbers
         phi = getEulersTotient(); // Find the Eulers Totient of the two prime numbers
+        d = privateExponent(); // Private key
         e = publicExponent(); // Public exponent
-        d = privateExponent(); // Private exponent
     }
 
         /* 
@@ -115,6 +115,7 @@ public class RSA {
 
         while (temp.compareTo(phi) < 0) {
             if (gcd(temp, phi).equals(BigInteger.ONE)) {
+                System.out.println(temp);
                 return temp;
             }
             temp = temp.add(BigInteger.ONE);
@@ -164,8 +165,8 @@ public class RSA {
      * @param none
      * @return BigInteger the private exponent
      */
-    private BigInteger privateExponent() {
-        return e.modInverse(phi);
+    private BigInteger publicExponent() {
+        return d.modInverse(phi);
     }
 
     /*
@@ -174,7 +175,7 @@ public class RSA {
      * @param none
      * @return BigInteger the public exponent
      */
-    private BigInteger publicExponent() {
+    private BigInteger privateExponent() {
         return findCoprime(phi);
     }
 }
